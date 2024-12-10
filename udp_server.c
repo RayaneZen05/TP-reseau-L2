@@ -36,19 +36,22 @@ int main(int argc, char *argv[]) {
   // le (const struct sockaddr *) est un cast de sockaddr_in -> sockaddr pour faire taire le compilateur qui demande
   // explicitement un sockaddr (sockaddr_in est un type de sockaddr)
   int b = bind(fdsocket, (const struct sockaddr *)&addy, addlen);
-  if (b <= 0) {
+  if (b < 0) {
     perror("échec de l'attachement");
   }
 
-  char* buf = (char*)malloc(20*sizeof(char));
-  while (1) {
+  char* buf = (char*)malloc(100*sizeof(char));
+
+  int timeout = 0;
+  while (timeout < 10) {
     // récéption des paquets udp
-    recvfrom(fdsocket, buf, 20*sizeof(char), 0, (struct sockaddr *)&addy, &addlen);
 
     // écriture sur la sortie standard
-    printf("Message recu : ");
+    //printf("Message recu : ");
+    int t = recvfrom(fdsocket, buf, 100*sizeof(char), 0, (struct sockaddr *)&addy, &addlen);
     write(STDOUT_FILENO, buf, sizeof(buf) - 1);
     printf("\n");
+    timeout++;
   }
-    
+  close(fdsocket);
 }
