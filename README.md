@@ -17,7 +17,7 @@ Ce serveur UDP attend une connexion d'un client et se lie (bind) à l'adresse IP
 
 #### À faire:
 
-- [ ] Tester le code
+- [X] Tester le code
 - [ ] Organiser la documentation
 
 ### Client UDP
