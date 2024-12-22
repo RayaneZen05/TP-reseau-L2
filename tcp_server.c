@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     // ------------------- accept --------------------------------
-    // création du socket fils pour traiter la demande du client, on se remet en écoute sur l'ancien socket si besoin
+    // création du socket fils pour traiter la demande du client, on se remet en écoute sur l'ancien socket ensuite
     while (1) {
         struct sockaddr clientaddr;
         socklen_t clientaddrlen = sizeof(clientaddr);
@@ -60,17 +60,11 @@ int main(int argc, char** argv) {
             perror("échec de l'acceptation");
             continue;
         }
-        if (fork() == 0) { // processus fils
-            close(fdsocket);
-            char* buf = (char*)malloc(100*sizeof(char));
-            int t = read(fdsocket2, buf, 100*sizeof(char));
-            write(STDOUT_FILENO, buf, t);
-            printf("\n");
-            close(fdsocket2);
-            exit(0);
-        } else {
-            close(fdsocket2); // processus pére qui ferme la socket
-        }
+        char* buf = (char*)malloc(100*sizeof(char));
+        int t = read(fdsocket2, buf, 100*sizeof(char));
+        write(STDOUT_FILENO, buf, t);
+        printf("\n");
+        close(fdsocket2);
     }
     close(fdsocket);
     return 0;

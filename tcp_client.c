@@ -44,18 +44,10 @@ int main(int argc, char** argv) {
     }
     char* buf = (char*)malloc(100*sizeof(char));
     // ------------------- read/write --------------------------------
-    // première lecture du serveur
-    int t = read(fdsocket, buf, 100*sizeof(char));
-    write(STDOUT_FILENO, buf, t);
-    printf("\n");
-    // ------------------- write --------------------------------
-    // écriture sur la socket
-    char* message = "Hello from client";
-    write(fdsocket, message, strlen(message));
-    // ------------------- read --------------------------------
-    // lecture de la réponse du serveur
-    t = read(fdsocket, buf, 100*sizeof(char));
-    write(STDOUT_FILENO, buf, t);
+    // lecture du message à envoyer
+    int t = read(STDIN_FILENO, buf, 100*sizeof(char));
+    //! gestion d'erreur sur la lecture ...
+    write(fdsocket, buf, 100*sizeof(char));
     printf("\n");
     close(fdsocket);
     return 0;
