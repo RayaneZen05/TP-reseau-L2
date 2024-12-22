@@ -21,6 +21,7 @@ int main(int argc, char** argv) {
     int fdsocket =  socket(PF_INET , SOCK_STREAM /*Pour TCP, mode connecté*/, 0);
     if (fdsocket == -1) {
         perror("échec de création de la socket (Serveur TCP)");
+        return EXIT_FAILURE;
     };
     
     // -------------------- définit l'adresse IP ----------------------------  
@@ -30,43 +31,47 @@ int main(int argc, char** argv) {
     // convertit de la notation décimale pointée à l'adresse binaire
     int k = inet_pton(PF_INET, argv[1], &(addy.sin_addr)); 
     if (k <= 0) {
-        perror("échec de création de la socket (Serveur tcp)");
+        perror("échec de conversion de l'adresse IP");
+        close(fdsocket);
+        return EXIT_FAILURE;
     }
     // ------------------- bind/configuration de la connexion -------------------------
     int b = bind(fdsocket, (const struct sockaddr *)&addy, addlen);
     if (b < 0) {
         perror("échec de l'attachement");
+        close(fdsocket);
+        return EXIT_FAILURE;
     }
     
     // ------------------- listen -------------------------
-    int l = listen(fdsocket, 0); // On écoute sur le port, on ne met aucun client en attente pour l'instant
+    int l = listen(fdsocket, 5); // On écoute sur le port, on permet jusqu'à 5 clients en attente
     if (l < 0) {
         perror("échec de l'écoute");
+        close(fdsocket);
+        return EXIT_FAILURE;
     }
     // ------------------- accept --------------------------------
     // création du socket fils pour traiter la demande du client, on se remet en écoute sur l'ancien socket si besoin
-    struct sockaddr clientaddr;
-    socklen_t clientaddrlen = sizeof(clientaddr);
-    int fdsocket2 = accept(fdsocket, (struct sockaddr *)&clientaddr, &clientaddrlen); // pour l'instant on accepte qu'une seule socket (pas de boucle)
-    if (fdsocket2 < 0) {
-        perror("échec de l'acceptation");
+    while (1) {
+        struct sockaddr clientaddr;
+        socklen_t clientaddrlen = sizeof(clientaddr);
+        int fdsocket2 = accept(fdsocket, (struct sockaddr *)&clientaddr, &clientaddrlen);
+        if (fdsocket2 < 0) {
+            perror("échec de l'acceptation");
+            continue;
+        }
+        if (fork() == 0) { // processus fils
+            close(fdsocket);
+            char* buf = (char*)malloc(100*sizeof(char));
+            int t = read(fdsocket2, buf, 100*sizeof(char));
+            write(STDOUT_FILENO, buf, t);
+            printf("\n");
+            close(fdsocket2);
+            exit(0);
+        } else {
+            close(fdsocket2); // processus pére qui ferme la socket
+        }
     }
-    int timeout = 0;
-    char* buf = (char*)malloc(100*sizeof(char));
-    // lecture depuis la socket client
-    int t = read(fdsocket2, buf, 100*sizeof(char));
-    // écriture sur la sortie standard
-    write(STDOUT_FILENO, buf, sizeof(buf) - 1);
-    printf("\n");
-    timeout++;
-    /*
-    while (timeout < 10) {
-        // lecture depuis la socket client
-        int t = read(fdsocket2, buf, 100*sizeof(char));
-        // écriture sur la sortie standard
-        write(STDOUT_FILENO, buf, sizeof(buf) - 1);
-        printf("\n");
-        timeout++;
-    }*/
     close(fdsocket);
+    return 0;
 }
