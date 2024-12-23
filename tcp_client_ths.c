@@ -13,6 +13,7 @@ int main(int argc, char* argv[]) {
     char guess[10];
     char SERVER_IP[16];
     sprintf(SERVER_IP, "%s", argv[1]);
+    printf("IP du serveur : %s\n", SERVER_IP);
     // socket
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
@@ -38,7 +39,7 @@ int main(int argc, char* argv[]) {
     }
 
     while (1) {
-        printf("Enter a guess: ");
+        printf("Devinez un nombre entre 1 et 100 : ");
         fflush(stdout); //! flush la sortie standard pour éviter d'avoir des entrées indésirables lors de buffer overflow d'autres programmes etc
         if (!fgets(guess, sizeof(guess), stdin)) break; // on utilise fgets au lieu de read pour lire jusqu'au \n, rajoute ensuite un 0 (fin de chaine)
 
@@ -49,7 +50,6 @@ int main(int argc, char* argv[]) {
         }
 
         // on reçoit la réponse
-        //memset(buffer, 0, sizeof(buffer));
         if (recv(sockfd, buffer, sizeof(buffer), 0) <= 0) {
             perror("recv");
             break;

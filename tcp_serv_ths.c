@@ -23,7 +23,7 @@ int main() {
     // création de l'adresse
     server_addr.sin_family = AF_INET;
     // INADDR_ANY pour ne pas avoir besoin de connaitre l'adresse de l'hôte
-    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     server_addr.sin_port = htons(PORT);
 
     // Bind
@@ -51,8 +51,10 @@ int main() {
     printf("Connexion réussie.\n");
 
     // jeu
-    srand(time(NULL));
-    int secret = rand() % 100 + 1;
+    printf("Choisis un nombre secret entre 1 et 100 : \n");
+    char input[10];
+    fgets(input, sizeof(input), stdin);
+    int secret = atoi(input);
     int guess;
     char buffer[64];
 
@@ -66,9 +68,7 @@ int main() {
         else if (guess > secret)
             strcpy(buffer, "Plus petit\n");
         else {
-            char reponsef[64] = "Félicitations, la réponse était bien %d\n"; // régler le formatting
-            sprintf(buffer, reponsef, secret);
-            strcpy(buffer, reponsef);
+            sprintf(buffer, "Félicitations, la réponse était bien %d\n", secret);
             send(client_sock, buffer, strlen(buffer), 0);
             break;
         }
