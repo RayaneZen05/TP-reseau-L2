@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
     socklen_t addlen = sizeof(addy);
     
     // convertit de la notation décimale pointée à l'adresse binaire
-    int k = inet_pton(PF_INET, argv[1], &(addy.sin_addr)); 
+    int k = inet_pton(PF_INET, argv[1], &(addy.sin_addr)); //TODO: set à INADDR_ANY pour ne pas avoir à préciser sur quelle interface réseau écouter sur l'invite de commande...
     if (k <= 0) {
         perror("échec de conversion de l'adresse IP");
         close(fdsocket);
