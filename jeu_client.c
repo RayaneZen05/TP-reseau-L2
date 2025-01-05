@@ -11,6 +11,8 @@ int main(int argc, char* argv[]) {
     struct sockaddr_in server_addr;
     char buffer[64];
     char guess[10];
+    memset(buffer, 0, sizeof(buffer));
+    memset(guess, 0, sizeof(guess));
     char SERVER_IP[16];
     sprintf(SERVER_IP, "%s", argv[1]);
     printf("IP du serveur : %s\n", SERVER_IP);
@@ -40,8 +42,8 @@ int main(int argc, char* argv[]) {
 
     while (1) {
         printf("Devinez un nombre entre 1 et 100 : ");
-        fflush(stdout); //! flush la sortie standard pour éviter d'avoir des entrées indésirables lors de buffer overflow d'autres programmes etc
-        if (!fgets(guess, sizeof(guess), stdin)) break; // on utilise fgets au lieu de read pour lire jusqu'au \n, rajoute ensuite un 0 (fin de chaine)
+        fflush(stdout); 
+        if (!fgets(guess, sizeof(guess), stdin)) break; // on utilise fgets au lieu de read pour lire jusqu'au \n, rajoute ensuite un \0 (fin de chaine)
 
         // on envoie le guess
         if (send(sockfd, guess, strlen(guess), 0) < 0) {

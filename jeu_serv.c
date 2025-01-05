@@ -6,7 +6,7 @@
 #include <time.h>
 
 #define PORT 9600
-#define BACKLOG 1
+#define BACKLOG 0 // un seul client peut jouer au jeu
 
 int main() {
     int sockfd, client_sock;
@@ -17,13 +17,12 @@ int main() {
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         perror("socket");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     // création de l'adresse
     server_addr.sin_family = AF_INET;
-    // INADDR_ANY pour ne pas avoir besoin de connaitre l'adresse de l'hôte
-    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(PORT);
 
     // Bind
@@ -51,22 +50,28 @@ int main() {
     printf("Connexion réussie.\n");
 
     // jeu
-    printf("Choisis un nombre secret entre 1 et 100 : \n");
-    char input[10];
-    fgets(input, sizeof(input), stdin);
-    int secret = atoi(input);
+    int secret;
+    do {
+        printf("Choisis un nombre secret entre 1 et 100 : \n");
+        char input[10];
+        fgets(input, sizeof(input), stdin);
+        secret = atoi(input);
+        if (secret < 1 || secret > 100) printf("Le nombre secret choisi est invalide.\n");
+    } while (secret < 1 || secret > 100);
+    
     int guess;
     char buffer[64];
 
     while (1) {
-        memset(buffer, 0, sizeof(buffer));
         if (recv(client_sock, buffer, sizeof(buffer), 0) <= 0) break;
         guess = atoi(buffer);
 
-        if (guess < secret)
+        if (guess < secret) {
             strcpy(buffer, "Plus grand\n");
-        else if (guess > secret)
+        }
+        else if (guess > secret) {
             strcpy(buffer, "Plus petit\n");
+        }
         else {
             sprintf(buffer, "Félicitations, la réponse était bien %d\n", secret);
             send(client_sock, buffer, strlen(buffer), 0);

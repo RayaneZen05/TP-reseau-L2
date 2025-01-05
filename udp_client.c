@@ -29,11 +29,6 @@ int main(int argc, char *argv[]){
     *    - taille de la chaîne à envoyer
     */
     
-    //int close;
- 
-    //struct in_addr adresse_socket;
- 
-    //struct sockaddr_in serv_addr;
  
     /*
     * Code du client
@@ -47,15 +42,16 @@ int main(int argc, char *argv[]){
     // ouverture du socket :
     int fdsocket =  socket(PF_INET , SOCK_DGRAM /*Pour UDP, mode datagram*/, 0);
     if (fdsocket == -1) {
-        perror("échec de création de la socket (Serveur udp)");
+        perror("échec de création de la socket (client udp)");
     };
     // récupération de l'adresse :
     struct sockaddr_in serv_addr = {.sin_family=PF_INET, .sin_port=htons(PORT)};
     socklen_t addlen = sizeof(serv_addr);
 
+    // convertion de notation décimale pointée à int
     int k = inet_pton(PF_INET, argv[1], &(serv_addr.sin_addr)); 
     if (k <= 0) {
-        perror("échec de création de la socket (Serveur udp)");
+        perror("échec de création de la socket (client udp)");
     }
     
     int _bind = bind(fdsocket, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
@@ -64,10 +60,16 @@ int main(int argc, char *argv[]){
     // lecture
     // création du buffer
     char buf[SIZE];
-    scanf("%100s", buf);
+    memset(buf, 0, SIZE);
+    printf("Entrez un message à envoyer : ");
+    fgets(buf, SIZE, stdin);
+    printf("Message à envoyer : %s\n", buf);
+    // envoi du message
+    int w = sendto(fdsocket, buf, strlen(buf) /* prendre seulement la partie "écrite" du buffer (jusqu'au \0)*/, 0, (struct sockaddr *) &serv_addr, addlen);
 
-    int w = sendto(fdsocket, buf, SIZE, 0, (struct sockaddr *) &serv_addr, addlen);
-
+    if (w < 0) {
+        perror("Echec de l'envoi du message");
+    }
     close(fdsocket);
     return 0;
 }

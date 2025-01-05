@@ -7,16 +7,10 @@
 #include<netdb.h>
 #include<string.h>
 
-#include<arpa/inet.h> // uniquement pour inet_pton, à voir
-
 /* Port local du serveur */
 #define PORT 9600
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        perror("Veuillez donner l'adresse IP");
-        return EXIT_FAILURE; 
-    }
     
     int fdsocket =  socket(PF_INET , SOCK_STREAM /*Pour TCP, mode connecté*/, 0);
     if (fdsocket == -1) {
@@ -25,17 +19,10 @@ int main(int argc, char** argv) {
     };
     
     // -------------------- définit l'adresse IP ----------------------------  
-    struct sockaddr_in addy = {.sin_family=PF_INET, .sin_port=htons(PORT)};
+    struct sockaddr_in addy = {.sin_family=PF_INET, .sin_port=htons(PORT), .sin_addr.s_addr=INADDR_ANY /* Toutes les interfaces */};
     socklen_t addlen = sizeof(addy);
     
-    // convertit de la notation décimale pointée à l'adresse binaire
-    int k = inet_pton(PF_INET, argv[1], &(addy.sin_addr)); //TODO: set à INADDR_ANY pour ne pas avoir à préciser sur quelle interface réseau écouter sur l'invite de commande...
-    if (k <= 0) {
-        perror("échec de conversion de l'adresse IP");
-        close(fdsocket);
-        return EXIT_FAILURE;
-    }
-    // ------------------- bind/configuration de la connexion -------------------------
+    // ------------------- bind -------------------------
     int b = bind(fdsocket, (const struct sockaddr *)&addy, addlen);
     if (b < 0) {
         perror("échec de l'attachement");
@@ -53,6 +40,7 @@ int main(int argc, char** argv) {
     // ------------------- accept --------------------------------
     // création du socket fils pour traiter la demande du client, on se remet en écoute sur l'ancien socket ensuite
     while (1) {
+        // accepte la connexion
         struct sockaddr clientaddr;
         socklen_t clientaddrlen = sizeof(clientaddr);
         int fdsocket2 = accept(fdsocket, (struct sockaddr *)&clientaddr, &clientaddrlen);
@@ -60,8 +48,11 @@ int main(int argc, char** argv) {
             perror("échec de l'acceptation");
             continue;
         }
-        char* buf = (char*)malloc(100*sizeof(char));
+        // lecture du message recu sur le socket
+        printf("Message recu: ");
+        char buf[100];
         int t = read(fdsocket2, buf, 100*sizeof(char));
+        fflush(stdout);
         write(STDOUT_FILENO, buf, t);
         printf("\n");
         close(fdsocket2);
