@@ -35,7 +35,7 @@ gcc tcp_server.c -o tcp_server
 ```
 L'adresse IP doit être une adresse valide de votre machine. Utilisez `ifconfig` ou `ip addr` pour la trouver.
 
-### Jeu (`tcp_serv_ths.c`)
+### Jeu (`jeu_serv.c`)
 Version évoluée du serveur TCP qui implémente un jeu de devinettes. L'hôte choisit un nombre secret et les clients doivent le deviner. Le serveur répond avec des indices "plus grand" ou "plus petit".
 
 Pour l'exécuter :
@@ -45,7 +45,7 @@ gcc tcp_serv_ths.c -o tcp_serv_ths
 ```
 Le serveur utilisera INADDR_ANY, donc il écoutera sur toutes les interfaces réseau disponibles.
 
-### Client TCP (Jeu) (`tcp_client_ths.c`)
+### Client TCP (Jeu) (`jeu_client.c`)
 Client correspondant au serveur de jeu. Il permet aux joueurs de se connecter et d'essayer de deviner le nombre secret.
 
 Pour l'exécuter :
@@ -60,6 +60,6 @@ gcc tcp_client_ths.c -o tcp_client_ths
 3. Pour tester localement, c'est plus simple d'utiliser directement 127.0.0.1 avant de passer à autre chose
 
 ## Dépannage
-- Si "Address already in use" : attendez quelques secondes ou utilisez un autre port
+- Si "Address already in use" : attendez quelques secondes ou utilisez un autre port, sinon `kill -9 $(lsof -t -i :9600)` permet d'interrompre le processus qui run sur le port 9600 (`kill -9` permet de kill le processus de force (SIGKILL au lieu de SIGTERM), `$(lsof -t -i :9600)` permet de récuperer le PID du processus qui utilise le port 9600
 - Si "Connection refused" : vérifiez que le serveur est bien lancé
 - Sur WSL : vérifiez que Windows Defender n'empêche pas les connexions ?
