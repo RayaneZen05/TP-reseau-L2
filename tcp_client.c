@@ -11,6 +11,7 @@
 
 /* Port local du serveur */
 #define PORT 9600
+int connected = 0;
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -42,13 +43,29 @@ int main(int argc, char** argv) {
         close(fdsocket);
         return EXIT_FAILURE;
     }
+    printf("Connexion réussie\n");
     char* buf = (char*)malloc(100*sizeof(char));
+    connected = 1;
+    while(connected){
     // ------------------- read/write --------------------------------
     // lecture du message à envoyer
-    int t = read(STDIN_FILENO, buf, 100*sizeof(char));
-    //! gestion d'erreur sur la lecture ...
-    write(fdsocket, buf, 100*sizeof(char));
-    printf("\n");
+        printf("Message à envoyer : \n");
+        int t = read(STDIN_FILENO, buf, 100*sizeof(char));
+        if(t < 0){    
+            perror("Erreur lors de l'écriture");
+            return EXIT_FAILURE;
+        }
+        if(buf[0] == '\n'){
+            connected = 0;
+        }
+        int w = write(fdsocket, buf, 100*sizeof(char));
+        if(w < 0){
+            perror("Erreur lors de l'écriture");
+            return EXIT_FAILURE;
+        }
+        printf("\n");
+    }
+    printf("------ Fermeture de la connexion avec le serveur ------\n");
     close(fdsocket);
     return 0;
 }

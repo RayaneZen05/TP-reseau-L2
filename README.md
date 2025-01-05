@@ -63,3 +63,12 @@ gcc tcp_client_ths.c -o tcp_client_ths
 - Si "Address already in use" : attendez quelques secondes ou utilisez un autre port
 - Si "Connection refused" : vérifiez que le serveur est bien lancé
 - Sur WSL : vérifiez que Windows Defender n'empêche pas les connexions ?
+
+## Répartition du TP :
+
+- Client UDP : Rayane
+- Serveur UDP : Jean-Baptiste
+- Client TCP : Jean-Baptiste
+- Serveur TCP : Rayane
+- Client TCP (mini-jeu) : Rayane 
+- Serveur TCP (mini-jeu) : Jean-Baptiste
