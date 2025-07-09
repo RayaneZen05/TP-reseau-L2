@@ -7,7 +7,7 @@
 
 #define PORT 9600
 #define BACKLOG 0 // un seul client peut jouer au jeu
-
+// Bonjour 09 07
 int main() {
     int sockfd, client_sock;
     struct sockaddr_in server_addr, client_addr;
